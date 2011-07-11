@@ -44,3 +44,4 @@ cmp_ok(@{$q->results}, '==', 5, "correct number of results");
 
 is($q->results->[0]->{material},    'GaAs', 'first material correct');
 
+ok( !exists $q->results->[0]->{one},    'Column "one" was deleted' );

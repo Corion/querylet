@@ -1,0 +1,11 @@
+Makefile
+Makefile.old
+*.tar.gz
+*.bak
+pm_to_blib
+blib/
+Querylet-*
+Querylet-*/
+.releaserc
+cover_db
+t/wafers.db

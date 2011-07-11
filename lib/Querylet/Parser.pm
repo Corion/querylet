@@ -295,6 +295,11 @@ sub signature {
     qr/^delete\s+columns\s+where:\s*/m . $_[0]->block('expr');
 };
 
+sub as_perl {
+    my ($self,$target_class) = @_;
+    $target_class->delete_cols($self->{expr});
+}
+
 package Querylet::Section::ColumnHeaders;
 use strict;
 use parent -norequire => 'Querylet::Section::Base';

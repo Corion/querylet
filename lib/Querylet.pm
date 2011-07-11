@@ -3,6 +3,7 @@ use Filter::Simple;
 
 use warnings;
 use strict;
+use Querylet::Parser;
 
 =head1 NAME
 
@@ -10,11 +11,11 @@ Querylet - simplified queries for the non-programmer
 
 =head1 VERSION
 
-version 0.324
+version 1.00_01
 
 =cut
 
-our $VERSION = '0.324';
+our $VERSION = '1.00_01';
 
 =head1 SYNOPSIS
 
@@ -472,18 +473,13 @@ my $to_next = qr/(?=^\S|\Z)/sm;
 
 FILTER {
   my ($class) = @_;
-
-  s/\r//g;
-  s/\A/"\n" . once('init',init)/egms;
-
-  s/^ database:\s*([^\n]+)
-   /  $class->set_dbh($1)
-   /egmsx;
-
-  s/^ query:\s*(.+?)
-      $to_next
-   /  $class->set_query($1)
-   /egmsx;
+  
+  my @sections = Querylet::Parser->parse($_);
+  
+  my @output;
+  push @output, <<PERL;
+      once('init', init);
+PERL
   
   s/^ query\s+parameter:\s*(.+?)
       $to_next

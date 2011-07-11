@@ -87,6 +87,9 @@ sub new {
         %args
     },
 }
+sub as_perl {
+    "# *** unimplemented ***";
+};
 
 package Querylet::Section::Perl;
 use strict;
@@ -105,6 +108,10 @@ sub new {
     } => $class
 };
 
+sub as_perl {
+    $_[0]->{block}
+};
+
 1;
 
 package Querylet::Section::Query;
@@ -112,7 +119,15 @@ use strict;
 use parent -norequire => 'Querylet::Section::Base';
 
 sub signature {
-    qr/^query:\s*/m . $_[0]->BLOCK
+    qr/^query:\s*/m . $_[0]->BLOCK('query');
+};
+
+sub as_perl {
+    my ($self, $target_class) = @_;
+    sprintf "%s->set_query(q{%s})",
+        $target_class,
+        $self->{query}
+    ;
 };
 
 package Querylet::Section::Database;
@@ -123,12 +138,17 @@ sub signature {
     qr/^database:[\t ]*(?<dsn>\S+)/m
 };
 
+sub as_perl {
+    my ($self, $target_class) = @_;
+    sprintf "%s->set_dbh(q{%s})\n", $target_class, $self->{dsn};
+};
+
 package Querylet::Section::MungeQuery;
 use strict;
 use parent -norequire => 'Querylet::Section::Base';
 
 sub signature {
-    qr/^munge\s+query:\s*/m . $_[0]->BLOCK
+    qr/^munge\s+query:\s*/m . $_[0]->BLOCK('query_vars')
 };
 
 package Querylet::Section::QueryParameter;
@@ -227,36 +247,28 @@ sub signature {
     qr/^column\s+headers?:\s*/m . $_[0]->BLOCK('headers');
 };
 
-package Querylet::Section::ColumnHeaders;
+package Querylet::Section::OutputFormat;
 use strict;
 use parent -norequire => 'Querylet::Section::Base';
 
 sub signature {
-    qr/^column\s+headers?:\s*/m . $_[0]->BLOCK('headers');
-};
-
-  s/^ output\s+format:\s+(\w+)$
-   /  $class->set_output_type($1);
-   /egmsx;
-
-package Querylet::Section::ColumnHeaders;
-use strict;
-use parent -norequire => 'Querylet::Section::Base';
-
-sub signature {
-    qr/^column\s+headers?:\s*/m . $_[0]->BLOCK('headers');
+    qr/^output\s+format:\s*(?<format>\w+)/m;
 };
 
 package Querylet::Section::OutputMethod;
+use strict;
+use parent -norequire => 'Querylet::Section::Base';
 
-  s/^output\s+method:\s+(?<method>\w+)$
+sub signature {
+  qr/^output\s+method:\s+(?<method>\w+)$/
+};
 
 package Querylet::Section::OutputFilename;
 use strict;
 use parent -norequire => 'Querylet::Section::Base';
 
 sub signature {
-    qr/^output\s+file:\s+(?<filename>[\\/_.A-Za-z0-9]+)$/m;
+    qr!^output\s+file:\s+(?<filename>[\\/_.A-Za-z0-9]+)\s*$!m;
 };
 
 package Querylet::Section::NoOutput;

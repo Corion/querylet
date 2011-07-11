@@ -133,7 +133,7 @@ use strict;
 use parent -norequire => 'Querylet::Section::Base';
 
 sub signature {
-    qr/^database:[\t ]*(?<dsn>.*)$/m
+    qr/^database:[\t ]*(?<dsn>\S.+)$/m
 };
 
 sub as_perl {

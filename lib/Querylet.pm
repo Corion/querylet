@@ -477,91 +477,19 @@ FILTER {
   my @sections = Querylet::Parser->parse($_);
   
   my @output;
-  push @output, <<PERL;
-      once('init', init);
-PERL
+  push @output, 
+      once('init', Querylet::init);
+
+  push @output, map { $_->as_perl(Querylet::) } @sections;
+
+  push @output, 
+      once('output',Querylet::output);
+
+  $_ = join ";\n", @output;
   
-  s/^ query\s+parameter:\s*(.+?)
-      $to_next
-   /  $class->bind_next_param($1);
-   /egmsx;
-
-  s/^ munge\s+query:\s*(.+?)
-      $to_next
-   /  $class->set_query_vars($1);
-   /egmsx;
-
-  s/^ set\s+option\s+([\/A-Za-z0-9_]+):\s*(.+?)
-      $to_next
-   /  $class->set_option($1,$2);
-   /egmsx;
-
-  s/^ input:\s*([^\n]+)
-   /  $class->input($1)
-   /egmsx;
-
-  s/^ input\s+type:\s+(\w+)$
-   /  $class->set_input_type($1);
-   /egmsx;
-
-  s/^ munge\s+rows:\s*(.+?)
-      $to_next
-   /  $class->munge_rows($1);
-   /egmsx;
-
-  s/^ delete\s+rows\s+where:\s*(.+?)
-      $to_next
-   /  $class->delete_rows($1);
-   /egmsx;
-
-  s/^ munge\s+all\s+values:\s*(.+?)
-      $to_next
-   /  $class->munge_values($1);
-   /egmsx;
-
-  s/^ munge\s+column\s+(\w+):\s*(.+?)
-      $to_next
-   /  $class->munge_col($1, $2);
-   /egmsx;
-
-  s/^ add\s+column\s+(\w+):\s*(.+?)
-      $to_next
-   /  $class->add_col($1, $2);
-   /egmsx;
-
-  s/^ delete\s+column\s+(\w+)$
-   /  $class->delete_col($1);
-   /egmsx;
-
-  s/^ delete\s+columns\s+where:\s*(.+?)
-      $to_next
-   /  $class->delete_cols($1);
-   /egmsx;
-
-  s/^ column\s+headers?:\s*(.+?)
-      $to_next
-   /  $class->column_headers($1);
-   /egmsx;
-
-  s/^ output\s+format:\s+(\w+)$
-   /  $class->set_output_type($1);
-   /egmsx;
-
-  s/^ output\s+method:\s+(\w+)$
-   /  $class->set_output_method($1);
-   /egmsx;
-
-  s/^ output\s+file:\s+([_.A-Za-z0-9]+)$
-   /  $class->set_output_filename($1);
-   /egmsx;
-
-  s/^ no\s+output$
-   /  once('output', q{})
-   /egmsx;
-
-  s/\Z
-   /once('output',output)
-   /egmsx;
+  warn $_;
+  
+  $_
 }
 
 =back

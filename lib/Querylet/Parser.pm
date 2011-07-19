@@ -355,3 +355,38 @@ sub as_perl {
 }
 
 1;
+
+=head1 TODO
+
+=over 4
+
+=item *
+
+Remember line number/offset of sections
+for improved error reporting and generation
+of
+
+  #line 123
+
+statements for better runtime error reporting
+
+=item *
+
+Implement mail sending plugin
+
+=item *
+
+Implement query parameter option that generates
+a filesystem-safe string of all parameters added to the query
+
+=item *
+
+Implement command-line "input" for query parameters
+
+=item *
+
+Implement default "input" for query parameters (like "today()")
+
+=back
+
+=cut

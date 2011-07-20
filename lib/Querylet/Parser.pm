@@ -29,6 +29,25 @@ sub known_verbs {
     map { [ $_, $_->signature ] } known_sections
 };
 
+sub colrow {
+    my ($rows,$column);
+    if ($_[1]) {
+        $rows = () = (substr( $_[0], 0, $_[1] ) =~ /(\r?\n)/mg);
+        if ($rows) {
+            $column = $-[0] - ($-[1] || 0);
+        } else {
+            $column = $_[1] # for lack of a better point
+        };
+    } else {
+        $rows = 0;
+        $column = 0;
+    };
+    return (
+        row => $rows,
+        col => $column,
+    )
+};
+
 sub parse {
     my ($class, $code) = @_;
     
@@ -39,32 +58,47 @@ sub parse {
     
     $code =~ s/\s+$//;
     
+    my $last_pos = 0;
     # and parse them out:
-    while ($code ne '') {
+    while ($last_pos < length $code) {
         # find the section that matches leftmost:
         my $leftmost_pos;
         my $leftmost_end;
         my $leftmost_match;
         for my $v (@verbs) {
-            #warn $v->[0];
-            if ($code =~ m/$v->[1]/) {
-                if (!defined $leftmost_pos or $-[0] < $leftmost_pos) {
-                    $leftmost_pos = $-[0];
-                    $leftmost_end = $+[0];
+            pos($code) = $last_pos;
+            if ($code =~ m/\G(?sm:.*?)($v->[1])/) {
+                if (!defined $leftmost_pos or $-[1] < $leftmost_pos) {
+                    $leftmost_pos = $-[1];
+                    $leftmost_end = $+[1];
                     $leftmost_match = [ $v, %+ ];
-                    last if $leftmost_pos == 0; # we can't match anything better than start of $code
+                    last if $leftmost_pos == $last_pos; # we can't match anything better than where we last left off
                 };
             };
         };
+        
         if (defined $leftmost_pos) {
-            push @sections, Querylet::Section::Perl->new(substr($code, 0, $leftmost_pos))
-                if $leftmost_pos;
+            push @sections, Querylet::Section::Perl->new(
+                offset => $last_pos,
+                colrow($code, $last_pos),
+                block => substr($code, $last_pos, $leftmost_pos-$last_pos)
+            )
+                if $leftmost_pos != $last_pos;
             my $class = (shift @{ $leftmost_match })->[0];
-            push @sections, $class->new( @$leftmost_match );
-            $code = substr $code, $leftmost_end;
+            push @sections, $class->new(
+                @$leftmost_match,
+                offset => $leftmost_pos,
+                colrow($code, $leftmost_pos),
+            );
+            $last_pos = $leftmost_end;
+            
         } else {
             # The rest of $code is Perl code
-            push @sections, Querylet::Section::Perl->new($code);
+            push @sections, Querylet::Section::Perl->new(
+                offset => $last_pos,
+                colrow($code, $last_pos),
+                block => substr $code, $last_pos
+            );
             last
         };
         
@@ -85,6 +119,9 @@ sub new {
     my ($class, %args ) = @_;
     bless {
         type => 'querylet',
+        offset => 0,
+        line => 0,
+        col => 0,
         %args
     } => $class
 }
@@ -102,11 +139,11 @@ sub signature {
 };
 
 sub new {
-    my ($class, $code ) = @_;
-    bless {
+    my ($class, %args ) = @_;
+    $class->SUPER::new(
         type => 'perl',
-        block => $code,
-    } => $class
+        %args
+    );
 };
 
 sub as_perl {

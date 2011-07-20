@@ -469,8 +469,6 @@ sub once {
   return $text || '';
 }
 
-my $to_next = qr/(?=^\S|\Z)/sm;
-
 FILTER {
   my ($class) = @_;
   
@@ -480,14 +478,14 @@ FILTER {
   push @output, 
       once('init', Querylet::init);
 
-  push @output, map { $_->as_perl(Querylet::) } @sections;
+  push @output, map { ("#line $_->{row}\n", $_->as_perl(Querylet::)) } @sections;
 
   push @output, 
       once('output',Querylet::output);
 
   $_ = join ";\n", @output;
   
-  warn $_;
+  #warn $_;
   
   $_
 }

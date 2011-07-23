@@ -416,6 +416,11 @@ sub as_perl {
 
 =item *
 
+Move out code generation meat from Querylet
+into Querylet::Section classes
+
+=item *
+
 Implement mail sending plugin
 
 =item *

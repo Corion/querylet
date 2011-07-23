@@ -416,16 +416,6 @@ sub as_perl {
 
 =item *
 
-Remember line number/offset of sections
-for improved error reporting and generation
-of
-
-  #line 123
-
-statements for better runtime error reporting
-
-=item *
-
 Implement mail sending plugin
 
 =item *

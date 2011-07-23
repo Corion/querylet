@@ -1,5 +1,10 @@
 Revision history for Querylet
 
+x.xxx   to be released
+        Factor out parsing into Querylet::Parser
+        Keep input line numbers
+        
+
 0.324   2008-09-14
         fix regex for Perl5 v10 
 

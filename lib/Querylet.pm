@@ -11,11 +11,11 @@ Querylet - simplified queries for the non-programmer
 
 =head1 VERSION
 
-version 1.00_01
+version 0.400_01
 
 =cut
 
-our $VERSION = '1.00_01';
+our $VERSION = '0.400_01';
 
 =head1 SYNOPSIS
 

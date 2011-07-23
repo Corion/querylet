@@ -6,6 +6,10 @@ use Module::Pluggable
     sub_name => 'known_sections'
     ;
 
+use vars qw($VERSION);
+
+$VERSION = '0.400';
+
 =head1 NAME
 
 Querylet::Parser - parse a document into its Querylet sections

@@ -13,6 +13,7 @@ WriteMakefile(
     'DBI'            => 1,
     'Filter::Simple' => 0,
     'Test::More'     => 0,
+    'Module::Pluggable'     => 0,
   },
   dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
   clean => { FILES => 'Querylet-* wafers.csv t/wafers.db' },

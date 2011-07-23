@@ -5,6 +5,7 @@ use Module::Pluggable
     search_path => 'Querylet::Section',
     sub_name => 'known_sections'
     ;
+use Querylet::Document;
 
 use vars qw($VERSION);
 
@@ -16,7 +17,8 @@ Querylet::Parser - parse a document into its Querylet sections
 
 =head1 SYNOPSIS
 
-    my @sections = Querylet::Parser->parse($querylet);
+    my $doc = Querylet::Parser->parse($querylet);
+    my @sections = $doc->sections;
     
     for my $s (@sections) {
         print $s->{name};
@@ -118,7 +120,9 @@ sub parse {
         
     };
     
-    @sections
+    Querylet::Document->new(
+        sections => \@sections
+    );
 };
 
 package Querylet::Section::Base;
@@ -244,6 +248,14 @@ sub as_perl {
 package Querylet::Section::Input;
 use strict;
 use parent -norequire => 'Querylet::Section::Base';
+
+sub new { 
+    my ($class, %args ) = @_;
+    $class->SUPER::new(
+        %args,
+        type => 'input',
+    );
+}
 
 sub signature {
     qr/^input:\s*(?<name>[^\n]+)/m;

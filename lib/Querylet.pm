@@ -476,7 +476,7 @@ FILTER {
   my %info;
   @info{ qw( package file row )} = @caller[0..2];
   
-  my @sections = Querylet::Parser->parse($_,
+  my $doc = Querylet::Parser->parse($_,
       %info
   );
   
@@ -484,13 +484,12 @@ FILTER {
   push @output, 
       once('init', Querylet::init);
 
-  push @output, map { join "\n", $_->line_comment, $_->as_perl(Querylet::) } @sections;
+  push @output, $doc->as_perl(Querylet::);
 
   push @output, 
       once('output',Querylet::output);
 
   $_ = join ";\n", @output;
-  
   #warn $_;
   
   $_

@@ -4,7 +4,7 @@ use Data::Dumper;
 
 use Querylet::Parser;
 
-my @sections = Querylet::Parser->parse(<<'Querylet');
+my @sections = Querylet::Parser->parse(<<'Querylet')->sections;
 
 $some->perl;
 ignored section:

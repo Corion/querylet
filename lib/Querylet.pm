@@ -472,13 +472,19 @@ sub once {
 FILTER {
   my ($class) = @_;
   
-  my @sections = Querylet::Parser->parse($_);
+  my @caller = caller(1);
+  my %info;
+  @info{ qw( package file row )} = @caller[0..2];
+  
+  my @sections = Querylet::Parser->parse($_,
+      %info
+  );
   
   my @output;
   push @output, 
       once('init', Querylet::init);
 
-  push @output, map { ("#line $_->{row}\n", $_->as_perl(Querylet::)) } @sections;
+  push @output, map { join "\n", $_->line_comment, $_->as_perl(Querylet::) } @sections;
 
   push @output, 
       once('output',Querylet::output);

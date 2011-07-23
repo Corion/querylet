@@ -42,6 +42,11 @@ sub colrow {
         $rows = 0;
         $column = 0;
     };
+    
+    # Adjust for offset was passed
+    $rows += $_[2];
+    #warn "$_[0] in line $rows";
+    
     return (
         row => $rows,
         col => $column,
@@ -49,7 +54,7 @@ sub colrow {
 };
 
 sub parse {
-    my ($class, $code) = @_;
+    my ($class, $code, %info) = @_;
     
     # load all the verbs we know/accept
     my @verbs = known_verbs;
@@ -57,6 +62,8 @@ sub parse {
     my @sections;
     
     $code =~ s/\s+$//;
+    
+    $info{ row } ||= 0;
     
     my $last_pos = 0;
     # and parse them out:
@@ -79,24 +86,27 @@ sub parse {
         
         if (defined $leftmost_pos) {
             push @sections, Querylet::Section::Perl->new(
+                %info,
                 offset => $last_pos,
-                colrow($code, $last_pos),
+                colrow($code, $last_pos, $info{ row }),
                 block => substr($code, $last_pos, $leftmost_pos-$last_pos)
             )
                 if $leftmost_pos != $last_pos;
             my $class = (shift @{ $leftmost_match })->[0];
             push @sections, $class->new(
+                %info,
                 @$leftmost_match,
                 offset => $leftmost_pos,
-                colrow($code, $leftmost_pos),
+                colrow($code, $leftmost_pos, $info{ row }),
             );
             $last_pos = $leftmost_end;
             
         } else {
             # The rest of $code is Perl code
             push @sections, Querylet::Section::Perl->new(
+                %info,
                 offset => $last_pos,
-                colrow($code, $last_pos),
+                colrow($code, $last_pos, $info{ row }),
                 block => substr $code, $last_pos
             );
             last
@@ -120,11 +130,18 @@ sub new {
     bless {
         type => 'querylet',
         offset => 0,
-        line => 0,
+        row => 0,
         col => 0,
+        file => '-e',
         %args
     } => $class
 }
+
+sub line_comment {
+    sprintf q{#line %d "%s"},
+        @{ $_[0] }{ qw(row file) };
+};
+
 sub as_perl {
     die sprintf "# %s *** unimplemented ***", ref $_[0];
 };

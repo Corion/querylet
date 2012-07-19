@@ -47,5 +47,7 @@ sub inputs {
     grep { $_->{type} eq 'input' } $self->sections;
 };
 
+# If we have no output filename, add a section creating a default
+# filename from $0 and the input parameter values
 
 1;

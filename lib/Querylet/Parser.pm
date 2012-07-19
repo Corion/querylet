@@ -443,14 +443,32 @@ Implement mail sending plugin
 
 Implement query parameter option that generates
 a filesystem-safe string of all parameters added to the query
+using L<Text::CleanFragment>
 
 =item *
 
-Implement command-line "input" for query parameters
+Implement autosplit of results based on a column value
 
 =item *
 
-Implement default "input" for query parameters (like "today()")
+Implement autopivot for at least one column, without aggregation
+
+=item *
+
+Implement "command-line" input for query parameters
+
+(See L<Config::Spec>? / L<Config::Cascade>)
+
+=item *
+
+Implement "default" input for query parameters (like "today()")
+
+=item *
+
+Implement priority cascade so inputs can get a default value
+I<or> get overridden from the command line
+
+(See L<Config::Cascade>)
 
 =back
 
